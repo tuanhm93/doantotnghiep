@@ -20,7 +20,7 @@ var consts = require('../../../lib/consts/consts.js');
 var SwitchMode = React.createClass({
 	getInitialState: function(){
 		return {
-			
+			user: this.props.user
 		};
 	},
 	render: function(){
@@ -30,7 +30,7 @@ var SwitchMode = React.createClass({
 
 		        <View style={styles.containerButton}>
 		          <TouchableOpacity
-		            onPress={this.shipperPress}
+		            onPress={this.onShipperPress}
 		            style={[styles.button, styles.shipperButton]}>
 
 		            <Text style={{fontSize: 15, color: "#1D8668"}}>I'M A SHIPPER</Text>
@@ -38,7 +38,7 @@ var SwitchMode = React.createClass({
 		          </TouchableOpacity>
 
 		          <TouchableOpacity
-		            onPress={this.callerPress} 
+		            onPress={this.onCallerPress} 
 		            style={[styles.button, styles.callerButton]} >
 
 		              <Text style={{fontSize: 15, color: "#ffffff"}}>I'M NOT A SHIPPER</Text>
@@ -50,10 +50,12 @@ var SwitchMode = React.createClass({
 		);
 	},
 	onShipperPress: function(){
-
+		var route = {name: 'ShipperChooseOption', user: this.state.user};
+		this.props.navigator.resetTo(route);
 	},
 	onCallerPress: function(){
-
+		var route = {name: 'CallerMainLayout', user: this.state.user};
+		this.props.navigator.resetTo(route);
 	}
 });
 

@@ -19,13 +19,19 @@ var {
 
 var ToolbarAndroid = require('ToolbarAndroid');
 
+//Common layout
 var WelcomeLayout = require('./android/resources/views/WelcomeLayout.js');
 var RegisterLayout = require('./android/resources/views/RegisterLayout.js');
 var LoginLayout = require('./android/resources/views/LoginLayout.js');
-var MainLayout = require('./android/resources/views/MainLayout.js');
-var ChatLayout = require('./android/resources/views/Chat.js');
 var ActiveLayout = require('./android/resources/views/ActiveLayout.js');
 var SwitchMode = require('./android/resources/views/SwitchMode.js');
+//Caller layout
+var CallerMainLayout = require('./android/resources/views/caller/MainLayout.js');
+
+
+//Shipper Layout
+var ShipperMainLayout = require('./android/resources/views/shipper/MainLayout.js');
+var ShipperChooseOption = require('./android/resources/views/shipper/ChooseOption.js');
 // This is for back to previous scene
 var _nav;
 BackAndroid.addEventListener('hardwareBackPress', () => {
@@ -43,8 +49,14 @@ var ishippartner = React.createClass({
       <Navigator
         initialRoute={{name: 'WelcomeLayout'}}
         renderScene={this.renderScene}
-        configureScene={this.configureScene} />
+        />
       );
+  },
+  configureScene: function(route, routeStack){
+    if(route.name == 'LoginLayout' || route.name == 'RegisterLayout'){
+      return Navigator.SceneConfigs.FloatFromBottom;
+    }
+    return Navigator.SceneConfigs.PushFromRight;
   },
   renderScene: function (route, navigator){
     _nav = navigator;
@@ -65,19 +77,37 @@ var ishippartner = React.createClass({
         <LoginLayout navigator={navigator} />
       );
     }
-    if(name == 'MainLayout'){
+    if(name == 'CallerMainLayout'){
       var user = route.user;
       return (
-        <MainLayout
+        <CallerMainLayout
           user = {user}
           navigator = {navigator}/>
       );
     }
+    if(name == 'ShipperMainLayout'){
+      var user = route.user;
+      return (
+        <ShipperMainLayout
+          user = {user}
+          navigator = {navigator}/>
+      );
+    }
+
     if(name == 'ActiveLayout'){
 
       var user = route.user;
       return (
         <ActiveLayout
+          user = {user}
+          navigator = {navigator}/>
+      );
+    }
+
+    if(name == 'ShipperChooseOption'){
+      var user = route.user;
+      return (
+        <ShipperChooseOption
           user = {user}
           navigator = {navigator}/>
       );

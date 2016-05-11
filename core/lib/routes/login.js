@@ -102,7 +102,7 @@ function loginFacebook(req, res){
 					avatar: req.userProfile.picture.data.url || '',
 					actived: 1,
 					accountType: consts.ACCOUNT_TYPE.FACEBOOK,
-					userType: consts.USER_TYPE.NON_SHIPPER,
+					userType: consts.USER_TYPE.NORMAL,
 					socialId: req.userProfile.id,
 					createdAt: Date.now(),
 					updatedAt: Date.now()

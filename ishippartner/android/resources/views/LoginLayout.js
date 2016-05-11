@@ -156,7 +156,6 @@ var LoginLayout = React.createClass({
 
 								if(data.code == consts.CODE.SUCCESS){
 									var user = data.user;
-										_self.alertError('Thông báo', JSON.stringify(user), 'OK');
 									var route;
 									if(user.userType == consts.USER_TYPE.ADMIN){
 										route = {name: 'AdminLayout'};

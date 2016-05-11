@@ -16,7 +16,7 @@ var {
 
 var GiftedMessenger = require('react-native-gifted-messenger');
 var Communications = require('react-native-communications');
-var app = require('../../../lib/share/app.js');
+var app = require('../../../../lib/share/app.js');
 var uuid = require('uuid');
 var Sound = require('react-native-sound');
 

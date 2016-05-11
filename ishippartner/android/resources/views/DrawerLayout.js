@@ -9,7 +9,8 @@ var {
   ListView,
   DrawerLayoutAndroid,
   Image,
-  AsyncStorage
+  AsyncStorage,
+  Alert
 } = React;
 
 var ToolbarAndroid = require('ToolbarAndroid');
@@ -17,8 +18,10 @@ var Icon = require('react-native-vector-icons/Ionicons');
 var app = require('../../../lib/share/app.js');
 
 var DrawerLayout = React.createClass({
+
   getInitialState: function(){
     var user = this.props.user;
+
     return {
       lockMode: 'unlocked',
       user: user
@@ -28,7 +31,7 @@ var DrawerLayout = React.createClass({
   openDrawer: function(){
     this.refs.drawer.openDrawer();
   },
-
+  
   selectItems : function(title,name){ 
     var _self = this;
     if(name == 'dangxuat' ){

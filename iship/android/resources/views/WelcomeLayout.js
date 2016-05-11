@@ -53,6 +53,18 @@ var  WelcomeLayout = React.createClass ({
     var route = {name: 'RegisterLayout'};
     return navigator.push(route);
   },
+
+  componentDidMount: function(){
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        var initialPosition = JSON.stringify(position);
+        this.setState({initialPosition});
+      },
+      (error) => alert(error.message),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+    );
+  },
+  
 });
 
 const styles = StyleSheet.create({

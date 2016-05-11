@@ -20,7 +20,8 @@ var {
 	ListView,
 	Navigator,
 	Dimensions,
-	Animated
+	Animated,
+	Slider
 } = React;
 
 var {height, width} = Dimensions.get('window');
@@ -28,19 +29,21 @@ var SPRING_CONFIG = {tension: -5, friction: 4}; //Soft spring
 
 var ProgressBar = require('ProgressBarAndroid');
 var MapView = require('react-native-maps');
-var DrawerLayout = require('./DrawerLayout');
-var app = require('../../../lib/share/app');
+var DrawerLayout = require('../DrawerLayout');
+var app = require('../../../../lib/share/app');
 var Icon = require('react-native-vector-icons/Ionicons');
-var consts = require('../../../lib/consts/consts');
+var consts = require('../../../../lib/consts/consts');
 var Sound = require('react-native-sound');
 var ChatLayout = require('./Chat.js');
-var MyToolBar = require('./MyToolBar.js');
+var MyToolBar = require('../MyToolBar.js');
 var Communications = require('react-native-communications');
 
 var MainLayout = React.createClass({
 
 	getDefaultProps: function(){
-		console.log('getDefaultProps: MainLayout');
+		return {
+	      	value: 0,
+	    }
 	},
 
 	getInitialState: function(){
@@ -97,6 +100,7 @@ var MainLayout = React.createClass({
 		state.handleClickIconToolbar = this.openDrawer;
 		state.mainAnimated = new Animated.ValueXY();
 		state.chatAnimated = new Animated.ValueXY();
+		state.value = this.props.value;
 		return state;	
 	},
 
@@ -145,7 +149,7 @@ var MainLayout = React.createClass({
 						<MapView.Marker 
 							coordinate={shipper.location}
 							key = {shipper.userid}
-							image={require('../../../public/images/motor.png')} >
+							image={require('../../../../public/images/motor.png')} >
 						</MapView.Marker> ))}
 					{this.state.startPoint ?
 						<MapView.Marker
@@ -160,6 +164,24 @@ var MainLayout = React.createClass({
 
 				</MapView>
 
+				{this.state.mode == 1 ?
+					<View style={styles.typeShipContainer}>
+						<View style={{flexDirection: 'row', alignSelf: "stretch"}}>
+							<Text style={{color: '#000000'}}>Nhỏ nhẹ</Text>
+							<View style={{flex: 1, alignItems: 'center'}}>
+								<Text style={{color: '#000000'}}>Trung bình</Text>
+							</View>
+							<Text style={{color: '#000000'}}>Ngoại cỡ</Text>
+						</View>
+						<Slider
+				          	{...this.props}
+				          	onValueChange={(value) => this.setState({value: value})}
+				          	style={{alignSelf: 'stretch', paddingLeft: 10, paddingRight: 10}}
+				          	minimumValue= {0}
+				          	maximumValue = {2}
+				          	step = {1} />
+					</View> : null}
+
 				{this.state.hasNotify ?
 					<View style={{position: "absolute", top: 2, right: 5, height: 15, width: 18}}>
 						<Icon name = "chatbox-working" size={20} color="#ff0000" />
@@ -170,7 +192,7 @@ var MainLayout = React.createClass({
 						<View style={styles.progressBar}>
 							<ProgressBar color="#000000" styleAttr="Horizontal" />
 						</View> : null}
-
+					{this.state.mode == -1 ? 
 					<View style={styles.currentLocationContainer}>
 						<TouchableOpacity style={styles.searchCurrentLocationContainer}>
 							<View style={styles.iconSearch}>
@@ -188,7 +210,7 @@ var MainLayout = React.createClass({
 									<Icon name="ios-plus-outline" size={20} color="#ffffff" />
 								</TouchableOpacity> : null}
 						</View>
-					</View>
+					</View> : null}
 					
 
 					{this.state.mode == 1 || this.state.mode == 2 ? 
@@ -233,7 +255,7 @@ var MainLayout = React.createClass({
 					<View style={styles.shipperProfileContainer}>
 						<View style={styles.profileContainer}>
 							{this.state.shipperProfile.avatar == '' ?
-								<Image style={styles.shipperAvatar} source={require('../../../public/images/avatardefault.png')}/> :
+								<Image style={styles.shipperAvatar} source={require('../../../../public/images/avatardefault.png')}/> :
 								<Image style={styles.shipperAvatar} source={{uri: this.state.shipperProfile.avatar}}/> }
 							<View style={styles.shipperProfile}>
 								<Text style={[styles.text, styles.shipperUsername]}>{this.state.shipperProfile.username}</Text>
@@ -270,7 +292,9 @@ var MainLayout = React.createClass({
 						<View style={styles.danhGiaXepHang}>
 							<View style={styles.headerDanhGia}>
 								<View style={styles.profileContainer}>
-									<Image style={styles.shipperAvatar} source={{uri: this.state.shipperProfile.avatar}}/>
+									{this.state.shipperProfile.avatar == '' ?
+										<Image style={styles.shipperAvatar} source={require('../../../../public/images/avatardefault.png')}/> :
+										<Image style={styles.shipperAvatar} source={{uri: this.state.shipperProfile.avatar}}/> }
 									<View style={styles.shipperProfile}>
 										<Text style={[styles.text, styles.shipperUsername]}>{this.state.shipperProfile.username}</Text>
 										<View style={styles.shipperStarContainer}>
@@ -859,6 +883,18 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: "center",
 		justifyContent: "center"
+	},
+	typeShipContainer:{
+		position: 'absolute',
+		left: 0,
+		bottom: 0,
+		right: 0,
+		height: 100,
+		backgroundColor: "#ffffff",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingLeft: 20,
+		paddingRight: 20
 	}
 
 
