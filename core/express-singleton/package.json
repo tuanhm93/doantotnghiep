@@ -1,0 +1,39 @@
+{
+  "_args": [
+    [
+      "express-singleton@git+ssh://git@10.2.10.163:vannh/express-singleton.git",
+      "/Users/bi/Workspace/Node/chat-support"
+    ]
+  ],
+  "_from": "git+ssh://git@10.2.10.163:vannh/express-singleton.git",
+  "_id": "express-singleton@0.0.1",
+  "_inCache": true,
+  "_location": "/express-singleton",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "express-singleton",
+    "raw": "express-singleton@git+ssh://git@10.2.10.163:vannh/express-singleton.git",
+    "rawSpec": "git+ssh://git@10.2.10.163:vannh/express-singleton.git",
+    "scope": null,
+    "spec": "ssh://git@10.2.10.163:vannh/express-singleton.git",
+    "type": "git"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git+ssh://git@10.2.10.163:vannh/express-singleton.git#49095ae600e46d30f99a621f51a70ba1b3efa7a6",
+  "_shasum": "fdf40e06d24719379108c112242e445b46c769e8",
+  "_shrinkwrap": null,
+  "_spec": "express-singleton@git+ssh://git@10.2.10.163:vannh/express-singleton.git",
+  "_where": "/Users/bi/Workspace/Node/chat-support",
+  "dependencies": {},
+  "devDependencies": {},
+  "gitHead": "49095ae600e46d30f99a621f51a70ba1b3efa7a6",
+  "installable": true,
+  "name": "express-singleton",
+  "optionalDependencies": {},
+  "private": true,
+  "readme": "ERROR: No README data found!",
+  "readmeFilename": "README.md",
+  "version": "0.0.1"
+}

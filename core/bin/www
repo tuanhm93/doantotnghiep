@@ -1,0 +1,29 @@
+var config = require('config');
+var app = require('../app');
+var http = require('http');
+
+var port = config.server.port || 1993;
+
+var server = http.createServer(app);
+
+server.listen(port);
+
+server.on('error', onError);
+server.on('listening', onListening);
+
+function onError(err){
+	throw err;
+}
+
+function onListening(){
+	console.log("Server is listening at port: ", port);
+}
+
+var io = require('socket.io')(server);
+var socketEvent = require('../lib/socket');
+io.on('connection', function(socket){
+	socket.data = {};
+	socketEvent(socket, io);
+});
+
+

@@ -1,0 +1,23 @@
+{
+	"mongodb": {
+		"iship": {
+			"host": "localhost",
+			"port": 27017,
+			"database": "iship"
+		}
+	},
+	"server":{
+		"port": 1993
+	},
+	"redis": {
+		"token": {
+			"host": "localhost",
+			"port": 6379,
+			"database": 1,
+			"auth": "redis!@#54V"
+		}
+	},
+	"token": {
+		"expire": 60
+	}
+}

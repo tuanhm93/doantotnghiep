@@ -1,0 +1,26 @@
+{
+  "name": "iship",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start"
+  },
+  "dependencies": {
+    "apsl-react-native-button": "^2.4.2",
+    "bluebird": "^3.3.5",
+    "react": "^0.14.8",
+    "react-native": "^0.24.1",
+    "react-native-communications": "^1.0.1",
+    "react-native-extra-dimensions-android": "^0.17.0",
+    "react-native-facebook-login": "^1.0.3",
+    "react-native-gifted-messenger": "^0.1.3",
+    "react-native-maps": "^0.3.2",
+    "react-native-progress": "^2.2.2",
+    "react-native-sound": "^0.8.1",
+    "react-native-vector-icons": "^1.3.4",
+    "rn-geolocation": "0.0.6",
+    "socket.io-client": "^1.4.5",
+    "uuid": "^2.0.2",
+    "validator": "^5.2.0"
+  }
+}

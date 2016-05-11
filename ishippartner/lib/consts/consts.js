@@ -1,0 +1,34 @@
+module.exports = {
+	"ACCOUNT_TYPE": {
+		"NORMAL": 1,
+		"FACEBOOK": 2
+	},
+	"USER_TYPE": {
+		"NORMAL": 1,
+		"ADMIN": 2 
+	},
+	"CODE":{
+		"WRONG_PARAM": 1,
+		"SUCCESS": 2,
+		"ERROR": 3,
+		"EMAIL_EXIST": 4,
+		"ACCOUNT_NOT_EXIST": 5,
+		"PASSWORD_WRONG": 6,
+		"TOKEN_EXPIRE": 7,
+		"NORMAL_STATE": 10,
+		"CLIENT_REQUEST": 8,
+		"CLIENT_SHIPPED": 14,
+		"DRIVER_WAIT": 9,
+		"DRIVER_GET_REQUEST": 13,
+		"DRIVER_SHIPPING": 12,
+		"ACCEPT": 15,
+		"REJECT": 16,
+		"FAILD": 17,
+		"CODE_VALID": 21,
+		"CODE_WRONG": 18,
+		"CODE_EXPIRE": 19,
+		"USER_NOT_EXIST": 20,
+		"CODE_USED": 22
+	},
+	"webServerUrl": "http://192.168.0.105:1993"
+}
