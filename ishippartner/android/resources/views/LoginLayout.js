@@ -223,7 +223,7 @@ var LoginLayout = React.createClass({
 								}else{
 									data = data || {};
 									if(data.code == consts.CODE.SUCCESS){
-										var route = {name: 'MainLayout', user: data.user};
+										var route = {name: 'SwitchMode', user: data.user};
 										_self.props.navigator.resetTo(route);
 									}else{
 										var socket = app.get('socket');
@@ -241,6 +241,10 @@ var LoginLayout = React.createClass({
 						console.error(err);
 						_self.alertError('Thông báo', 'Đã có lỗi xảy ra vui lòng thử lại!', 'OK');
 					});
+				FBLoginManager.logout(function(err, data){
+					console.log(err);
+					console.log(data);
+				});
 			} else {
 				_self.alertError('Thông báo', 'Đã có lỗi xảy ra vui lòng thử lại!', 'OK');
 			}

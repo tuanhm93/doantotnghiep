@@ -170,7 +170,7 @@ var RegisterLayout = React.createClass({
 								}else{
 									data = data || {};
 									if(data.code == consts.CODE.SUCCESS){
-										var route = {name: 'MainLayout', user: data.user};
+										route = {name: 'SwitchMode', user: data.user};
 										_self.props.navigator.resetTo(route);
 									}else{
 										var socket = app.get('socket');

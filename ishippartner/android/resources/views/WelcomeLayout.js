@@ -95,6 +95,16 @@ var  WelcomeLayout = React.createClass ({
       .catch(function(error){
         _self.openNormal();     
       });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log(position);
+      },
+      (error) => {
+        console.log(error);
+      },
+      {enableHighAccuracy: true, timeout: 5*60*1000, maximumAge: 1000}
+    );
   },
 
   _setModalVisible: function(value){

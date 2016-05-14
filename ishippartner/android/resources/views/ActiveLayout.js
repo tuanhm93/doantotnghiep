@@ -46,7 +46,7 @@ var ActiveLayout = React.createClass({
 			.then(function(result){
 				_self._setModalVisible(false);
 				if(result.code == consts.CODE.SUCCESS){
-					var route = {name: 'MainLayout', user: _self.state.user};
+					var route = {name: 'SwitchMode', user: _self.state.user};
 					_self.props.navigator.resetTo(route);
 				}else if(result.code == consts.CODE.FAILD){
 					if(result.status == consts.CODE.CODE_WRONG){
@@ -107,7 +107,8 @@ var ActiveLayout = React.createClass({
 				</View>
 				<View style={styles.body}>
 					<Text style={styles.bodyTitle}>Vui lòng nhập mã xác thực của bạn</Text>
-					<Text style={styles.bodySubTitle}>đã được gửi tới địa chỉ email: {this.state.user.email}</Text>
+					<Text style={styles.bodySubTitle}>đã được gửi tới địa chỉ email: </Text>
+					<Text style={styles.bodySubTitle}>{this.state.user.email}</Text>
 					<Text style={styles.errorCode}>{this.state.codeError}</Text>
 
 					<TextInput
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
 		textAlign: "center"
 	},
 	textInputCode:{
-		width: 50,
+		width: 60,
 	
 	},
 	activeButton:{

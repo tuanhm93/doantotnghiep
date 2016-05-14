@@ -79,17 +79,19 @@ var ishippartner = React.createClass({
     }
     if(name == 'CallerMainLayout'){
       var user = route.user;
+      var currentLocation = route.currentLocation;
       return (
         <CallerMainLayout
           user = {user}
+          currentLocation = {currentLocation}
           navigator = {navigator}/>
       );
     }
     if(name == 'ShipperMainLayout'){
-      var user = route.user;
+      var currentLocation = route.currentLocation;
       return (
         <ShipperMainLayout
-          user = {user}
+          currentLocation = {currentLocation}
           navigator = {navigator}/>
       );
     }

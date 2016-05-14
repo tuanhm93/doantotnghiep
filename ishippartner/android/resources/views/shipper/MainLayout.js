@@ -30,60 +30,55 @@ var MyToolBar = require('../MyToolBar.js');
 
 var MainLayout = React.createClass({
 	watchId: null,
-	hasLoadLocation: false,
 	currentLocation: {},
-	currentLocationDelta: {},
-	locationDefault: {
-		latitude: 21.0227,
-		longitude: 105.8019,
-	},
-	locationDeltaConfirm:{
-		latitudeDelta: 0.0026736060809362527,
-		longitudeDelta: 0.001844353973865509
-	},
-	locationDeltaDefault: {
+	currentDelta: {
 		latitudeDelta: 0.01549886894352781,
 		longitudeDelta: 0.010693632066249847
 	},
 	countdountInterval: null,
 	shipid: '',
 	hasLoadChat: false,
-	messageBuffer: [],
 	_messages: [],
+	isCancel: false,
+	hasFindWay: false,
 
 	getInitialState: function(){
 		console.log("Initial state: MainLayout");
-		var state;
-		if(this.props.initialLocation){
-			var initialLocation = this.props.initialLocation;
-			state = {
-				initialRegion:{
-					latitude: initialLocation.latitude,
-					longitude: initialLocation.longitude,
-					latitudeDelta: this.locationDeltaDefault.latitudeDelta,
-					longitudeDelta: this.locationDeltaDefault.longitudeDelta,
-				}
-			};
-		}else{
-			state = {
-				initialRegion: {
-					latitude: this.locationDefault.latitude,
-					longitude: this.locationDefault.longitude,
-					latitudeDelta: this.locationDeltaDefault.latitudeDelta,
-					longitudeDelta: this.locationDeltaDefault.longitudeDelta,
-				},
-			}
+		this.currentLocation = this.props.currentLocation;
+
+		var state = {};
+		state.initialRegion = {
+			latitude: this.currentLocation.latitude,
+			longitude: this.currentLocation.longitude,
+			latitudeDelta: this.currentDelta.latitudeDelta,
+			longitudeDelta: this.currentDelta.longitudeDelta,
 		}
+		state.mode = 2;
 
 		state.nameOfCurrentLocation = 'Chưa rõ vị trí hiện tại';
-		state.clientLocation = {
-			longitude: 108.8019,
-			latitude: 21.0227
-		};
+
+		state.startPoint = null;
+		state.endPoints = [];
+		// state.startPoint = {
+		// 	latitude: 20.99,
+		// 	longitude: 105.959
+		// };
+		// state.endPoints = [
+		// {
+		// 	latitude: 20.93,
+		// 	longitude: 105.959
+		// },
+		// {
+		// 	latitude: 20.9193186,
+		// 	longitude: 105.93512
+		// },
+		// {
+		// 	latitude: 20.964580,
+		// 	longitude: 105.933397
+		// }];
 		state.clientProfile = null;
-		state.mode = 1;
-		state.titleModeText = '';
-		state.modeText = 'BẮT ĐẦU';
+		
+
 		state.countdount = 15;
 		state.shipStatus = '';
 		state.colors = [];
@@ -92,34 +87,33 @@ var MainLayout = React.createClass({
 		state.messages = this._messages;
 		state.hasNotify = false;
 
-		state.titleToolbar = 'ISHIP';
-		state.iconToolbar = 'navicon';
-		state.handleClickIconToolbar = this.openDrawer;
+		state.coordinates = [];
+		state.listLongPress = [];
+
+		state.titleModeText = 'ĐANG ĐỢI YÊU CẦU';
+		state.iconToolbar = 'close-circled';
+		state.handleClickIconToolbar = this.handleClickIconToolbar;
 		return state;	
 	},
 
 	render: function() {
 		return (
-			<DrawerLayout
+			/*<DrawerLayout
 				user = {this.props.user}
 				ref = "drawer"
 				navigator = {this.props.navigator}
-				style={styles.drawer} >
+				style={styles.drawer} >*/
+			<View style={{flex: 1}}>
 				<MyToolBar
 					style={{backgroundColor: "#1D8668", height: 56}}
-					title={this.state.titleToolbar}
+					title={this.state.titleModeText}
 					icon={this.state.iconToolbar}
 					onPress={this.state.handleClickIconToolbar} >
 				</MyToolBar>
 
 				{this.state.mode == 2 || this.state.mode == 3 ?
-					<View style={styles.toolbarOnlineContainer}>
-						<View style={styles.toolbarOnline}>
-							<Text style={styles.toolBarOnlineText}>{this.state.titleModeText}</Text>
-						</View>
-						<View style={styles.progressBar}>
-							<ProgressBar color="#000000" styleAttr="Horizontal" />
-						</View>
+					<View style={styles.progressBar}>
+						<ProgressBar color="#000000" styleAttr="Horizontal" />
 					</View> : null }
 
 
@@ -127,6 +121,8 @@ var MainLayout = React.createClass({
 					<ToolbarAndroid
 						title={this.state.titleModeText}
 						style={styles.toolbarModeShipping}
+						navIcon = {require('../../../../public/images/navigate.png')}
+						onIconClicked={this.onPressFindWay}
 						onActionSelected={this.toolbarAction}
 						actions={[
 							{title: 'Chat'},
@@ -134,25 +130,46 @@ var MainLayout = React.createClass({
 							{title: 'Hủy ship'}
 						]}
 						titleColor="#ffffff" /> : null }
-				{this.state.hasNotify ?
+
+				{ this.state.hasNotify ?
 					<View style={{position: "absolute", top: 2, right: 5, height: 15, width: 18}}>
 						<Icon name = "chatbox-working" size={20} color="#ff0000" />
-					</View> : null}
-				<View style={{flex: 1}}>
-				<MapView 
-					ref = "map"
-					style={ styles.map }
-					initialRegion={this.state.initialRegion}
-					showsUserLocation={true}
-					onRegionChange = {this.changeRegion}
-					mapType="terrain">
-					
-					<MapView.Marker
-						coordinate={this.state.clientLocation} >
-						<Icon name="ios-location" size={45} color="#1D8668" />
-					</MapView.Marker>
+					</View> : null }
 
-				</MapView>
+				<View style={{flex: 1}}>
+					<MapView 
+						ref = "map"
+						style={ styles.map }
+						initialRegion={this.state.initialRegion}
+						showsUserLocation={true}
+						onRegionChange = {this.changeRegion}
+						onLongPress = {this.onLongPress} >
+
+						{this.state.startPoint ?
+							<MapView.Marker
+								coordinate={this.state.startPoint} >
+								<Icon name="ios-location" size={45} color="#1D8668" />
+							</MapView.Marker> : null}
+
+						{this.state.endPoints.map(endPoint => (
+							<MapView.Marker
+								coordinate={endPoint} >
+								<Icon name="ios-location" size={45} color="#ff0000" />
+							</MapView.Marker> ))}
+
+						<MapView.Polyline 
+							coordinates={this.state.coordinates}
+							strokeWidth={5}
+							strokeColor={"#3498db"}/>
+
+						{this.state.listLongPress.map(lockPoint => (
+							<MapView.Marker
+								coordinate={lockPoint}
+								onPress={this.pressLockPoint}>
+								<Icon name="pin" size={25} color="#000000" />
+							</MapView.Marker> ))}
+
+					</MapView>
 				</View>
 
 				<View style={styles.containerInMap}>
@@ -160,12 +177,13 @@ var MainLayout = React.createClass({
 						<Text style={styles.showCurrentTitle}>VỊ TRÍ HIỆN TẠI</Text>
 						<Text style={styles.showCurrentName}>{this.state.nameOfCurrentLocation}</Text>
 					</View>
-					{this.state.mode == 1 || this.state.mode == 2?
+
+					{/*this.state.mode == 1 || this.state.mode == 2?
 						<TouchableOpacity
 							style={styles.buttonSwitch} 
 							onPress={this.buttonSwitch} >
 							<Text style={styles.textSwitch}>{this.state.modeText}</Text>
-						</TouchableOpacity> : null}
+						</TouchableOpacity> : null*/}
 				</View>
 
 				{this.state.mode == 5 || this.state.mode == 6 ||  this.state.mode == 7 || this.state.mode == 8 ?
@@ -285,10 +303,9 @@ var MainLayout = React.createClass({
 								<Text style={[styles.text, styles.rejectText]}>BỎ QUA</Text>
 							</TouchableOpacity>
 						</View>
+					</View> : null }
 
-					</View>
-				 : null }
-				 {this.state.showInfShipCurrent ?
+				{this.state.showInfShipCurrent ?
 				 	<View style={styles.currentShipContainer}>
 				 		<View style={styles.headerCurrentShip}>
 				 			<TouchableOpacity style={{height: 56, width: 56, justifyContent: "center", alignItems: "center"}}
@@ -323,48 +340,41 @@ var MainLayout = React.createClass({
 				 		</View>
 				 	</View> : null}
 
-				 	{this.state.openChat ? 
-						<View style={{position: "absolute", top: 0, left: 0, right: 0, bottom: 0}}>
-							<ToolbarAndroid style={{height: 60, backgroundColor: "#1D8668"}}
-			       				navIcon={{uri: "android_back_white",isStatic: true}}
-						        title="CHAT"
-						        titleColor="#ffffff"
+			 	{this.state.openChat ? 
+					<View style={{position: "absolute", top: 0, left: 0, right: 0, bottom: 0}}>
+						<ToolbarAndroid style={{height: 60, backgroundColor: "#1D8668"}}
+		       				navIcon={{uri: "android_back_white",isStatic: true}}
+					        title="CHAT"
+					        titleColor="#ffffff"
 
-						        onIconClicked = {()=> {
-						        	this.setState({
-						        		openChat: false,
-						        	})
-							     }}/>
-					      	<GiftedMessenger
-						        ref={(c) => this._GiftedMessenger = c}
-						    
-						        styles={{
-						        	flex: 1,
-						          	bubbleRight: {
-							            marginLeft: 70,
-							            backgroundColor: '#007aff',
-						          	},
-						        }}
-						        
-						        autoFocus={true}
-						        messages={this.state.messages}
-						        handleSend={this.handleSend}
-						        onErrorButtonPress={this.onErrorButtonPress}
-						        maxHeight={Dimensions.get('window').height - Navigator.NavigationBar.Styles.General.NavBarHeight- 30}
-						        loadEarlierMessagesButton={false}
-						        onLoadEarlierMessages={this.onLoadEarlierMessages}
-						       	keyboardDismissMode={'none'}
-						       	keyboardShouldPersistTaps={true}
-						        onImagePress={this.onImagePress}
-						        displayNames={true}
-						        parseText={true} // enable handlePhonePress, handleUrlPress and handleEmailPress
-						        handlePhonePress={this.handlePhonePress}
-						        handleUrlPress={this.handleUrlPress}
-						        handleEmailPress={this.handleEmailPress}
-						        typingMessage={this.state.typingMessage}
-					      	/>
-						</View> : null }
-			</DrawerLayout>
+					        onIconClicked = {()=> {
+					        	this.setState({
+					        		openChat: false,
+					        	})
+						     }}/>
+				      	<GiftedMessenger
+					        ref={(c) => this._GiftedMessenger = c}
+					        styles={{flex: 1}}
+					        autoFocus={true}
+					        messages={this.state.messages}
+					        handleSend={this.handleSend}
+					        onErrorButtonPress={this.onErrorButtonPress}
+					        maxHeight={Dimensions.get('window').height - Navigator.NavigationBar.Styles.General.NavBarHeight- 30}
+					        loadEarlierMessagesButton={false}
+					        onLoadEarlierMessages={this.onLoadEarlierMessages}
+					       	keyboardDismissMode={'none'}
+					       	keyboardShouldPersistTaps={true}
+					        onImagePress={this.onImagePress}
+					        displayNames={true}
+					        parseText={true} // enable handlePhonePress, handleUrlPress and handleEmailPress
+					        handlePhonePress={this.handlePhonePress}
+					        handleUrlPress={this.handleUrlPress}
+					        handleEmailPress={this.handleEmailPress}
+					        typingMessage={this.state.typingMessage}
+				      	/>
+					</View> : null }
+			</View>
+			
 		);
 	},
 	openDrawer: function(){
@@ -376,7 +386,7 @@ var MainLayout = React.createClass({
 			this.setState({
 				openChat: true,
 				hasNotify: false,
-			})
+			});
 		}else if(index == 2){
 			socket.emit('cancel_ship', {shipid: this.shipid});
 			this.switchMode(8);
@@ -388,46 +398,42 @@ var MainLayout = React.createClass({
 	},
 	changeRegion: function(region){
 		var socket = app.get('socket');
-		console.log(region);
-		
+		console.log(region);	
 	},
 	switchMode: function(mode){
 		var _self = this;
 		var previousMode = this.state.mode;
 		if(mode == 2){
-			if(previousMode == 1){
+			if(previousMode == 3){
 				this.setState({
 					mode: 2,
-					modeText: 'KẾT THÚC',
-					titleModeText: 'ĐANG ĐỢI YÊU CẦU'
-				});
-				this.refs.drawer.setLockMode("locked-closed");
-			}else if(previousMode == 3){
-				this.setState({
-					mode: 2,
-					titleModeText: 'ĐANG ĐỢI YÊU CẦU'
+					titleModeText: 'ĐANG ĐỢI YÊU CẦU',
+					iconToolbar: 'close-circled'
 				});
 			}else if (previousMode == 4){
 				this.setState({
-					mode: 2
+					mode: 2,
 				});
 			}else if (previousMode == 5 || previousMode == 6 || previousMode == 7 || previousMode == 8){
 				this.setState({
 					mode: 2,
-					titleModeText: 'ĐANG ĐỢI YÊU CẦU'
-				})
+					titleModeText: 'ĐANG ĐỢI YÊU CẦU',
+					iconToolbar: 'close-circled',
+					startPoint: null,
+					endPoints: [],
+					coordinates: [],
+					listLongPress: []
+				});
+				if(this.hasFindWay){
+					this.hasFindWay = false;
+				}
 			}
 		} else if(mode == 3){
 			this.setState({
 				mode: 3,
-				titleModeText: 'ĐANG HỦY YÊU CẦU'
-			})
-		} else if(mode == 1){
-			this.setState({
-				mode: 1,
-				modeText: 'BẮT ĐẦU'
+				titleModeText: 'ĐANG HỦY YÊU CẦU',
+				iconToolbar: null
 			});
-			this.refs.drawer.setLockMode("unlocked");
 		} else if(mode == 4){
 			this.setState({
 				mode: 4,
@@ -470,34 +476,19 @@ var MainLayout = React.createClass({
 			});
 		}
 	},
-	buttonSwitch: function(){
+	handleClickIconToolbar: function(){
 		var _self = this;
 		var socket = app.get('socket');
-
-		if(this.state.mode == 1){
-			if(this.currentLocation.latitude != undefined){
-				socket.emit('go_online', this.currentLocation);
-				_self.switchMode(2);
+		_self.switchMode(3);
+		socket.emit('go_offline', function(data){
+			if(data.code == consts.CODE.SUCCESS){
+				_self.props.navigator.pop();
 			}else{
-				Alert.alert(
-					'Lỗi',
-					'Chưa xác định được vị trí hiện tại',
-					[
-						{text: 'OK'},
-					]
-				);
+				_self.switchMode(2);
 			}
-		}else if(this.state.mode == 2){
-			_self.switchMode(3);
-			socket.emit('go_offline', function(data){
-				if(data.code == consts.CODE.SUCCESS){
-					_self.switchMode(1);
-				}else{
-					_self.switchMode(2);
-				}
-			});
-		}
+		});
 	},
+
 	changeStatusShip: function(){
 		var socket = app.get('socket');
 
@@ -510,8 +501,10 @@ var MainLayout = React.createClass({
 		}else if(mode == 7){
 			socket.emit('finish_ship', {shipid: this.shipid});
 		}
+
 		this.switchMode(mode + 1);
 	},
+
 	onAccept: function(){
 		var socket = app.get('socket');
 		socket.emit('have_client', {code: consts.CODE.ACCEPT});
@@ -530,30 +523,27 @@ var MainLayout = React.createClass({
 		console.log("componentDidMount");
 		var _self = this;
 		var socket = app.get('socket');
+		socket.emit('location_name', this.currentLocation);
+		
 
 		this.watchID = navigator.geolocation.watchPosition((position) => {
 			var longitude = position.coords.longitude;
 			var latitude = position.coords.latitude;
 			this.currentLocation.latitude = latitude;
 			this.currentLocation.longitude = longitude;
-			this.setState({nameOfCurrentLocation:"lat: "+latitude+" long:"+longitude});
-			var data = {};
-			if((this.state.mode != 1)&&(this.state.mode != 5)){
-				data.latitude = latitude;
-				data.longitude = longitude;
-				socket.emit("update_location_shipper", data);
-			}else if(this.state.mode == 5){
-				data.shipid = _self.shipid;
-				data.latitude = latitude;
-				data.longitude = longitude;
-				socket.emit("update_location_shipper", data);
-			}
+			socket.emit('location_name', this.currentLocation);
+
+			socket.emit("update_location_shipper", this.currentLocation);
 		});
+
+		socket.on('location_name', function(data){
+			_self.setState({nameOfCurrentLocation: data.roadName});
+		})
 
 		socket.on('have_client', function(data){
 			_self.setState({
 				clientProfile: data.user,
-				clientLocation: data.startPoint,
+				startPoint: data.startPoint,
 				endPoints: data.endPoints
 			});
 			_self.switchMode(4);
@@ -565,6 +555,7 @@ var MainLayout = React.createClass({
 		});
 
 		socket.on('cancel_ship', function(){
+			this.isCancel = true;
 			_self.switchMode(8);
 		});
 
@@ -585,12 +576,19 @@ var MainLayout = React.createClass({
 	    	_self.setMessageStatus(idMessage, 'Đã gửi');
 	    });
 
+	    socket.on('find_way', function(data){
+	    	_self.setState({
+	    		coordinates: data.coordinates
+	    	});
+	    });
+
 	    this.newMessage = new Sound('newmessage.mp3', Sound.MAIN_BUNDLE, function(err){
 			if(!err){
 				_self.isNewMessageLoaded = true;
 			}
 		});
 	},
+
 	setMessageStatus(uniqueId, status) {
 	    let messages = [];
 	    let found = false;
@@ -610,10 +608,10 @@ var MainLayout = React.createClass({
 	      this.setMessages(messages);
 	    }
     },
-     setMessages(messages) {
+
+    setMessages(messages) {
 	    this._messages = messages;
-	    
-	    // append the message
+
 	    this.setState({
 	      messages: messages,
 	    });
@@ -621,9 +619,6 @@ var MainLayout = React.createClass({
   
   	handleSend(message = {}) {
     	var socket = app.get('socket');
-    	
-	    // Your logic here
-	    // Send message.text to your server
 	    
 	    message.uniqueId = uuid.v1(); // simulating server-side unique id generation
 	    socket.emit('send_message', {shipid: this.shipid, text: message.text, id: message.uniqueId});
@@ -642,6 +637,7 @@ var MainLayout = React.createClass({
 	    
 	    this.setMessages(this._messages.concat(newMessage));
   	},
+
 	danhGia: function(){
 		var socket = app.get('socket');
 		var howMuchStar = 0;
@@ -653,10 +649,12 @@ var MainLayout = React.createClass({
 				break;
 			}
 		}
+
 		socket.emit('star', {userid: this.state.clientProfile._id, shipid: this.shipid, star: howMuchStar});
+		socket.emit('reset_status');
 		this.switchMode(2);
-		socket.emit('go_online', this.currentLocation);
 	},
+
 	howMuchStar: function(number){
 		var colors=["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"];
 		for(var i=0;i < number ;i++){
@@ -665,7 +663,77 @@ var MainLayout = React.createClass({
 
 		this.setState({
 			colors: colors
-		})
+		});
+	},
+	onPressFindWay: function(){
+		var socket = app.get('socket');
+		this.setState({
+			listLongPress: [],
+			coordinates: []
+		});
+
+		if(this.state.mode == 5){
+			// Coming to client
+			this.hasFindWay = true;
+			var startPoint = this.currentLocation;
+			var endPoints = [this.state.startPoint];
+			socket.emit('find_way', {startPoint: startPoint, endPoints: endPoints});
+		}else{
+			//Coming to destination
+			if(this.state.endPoints.length != 0){
+				if(!this.hasFindWay){
+					this.hasFindWay = true;
+				}
+				var startPoint = this.currentLocation;
+				var endPoints = this.state.endPoints;
+				socket.emit('find_way', {startPoint: startPoint, endPoints: endPoints});
+			}else{
+				if(this.hasFindWay){
+					this.hasFindWay = false;
+				}
+			}
+		}
+	},
+	onLongPress: function(data){
+		if(this.hasFindWay){
+			this.state.listLongPress.push(data.nativeEvent.coordinate);
+			this.setState({
+				listLongPress: this.state.listLongPress
+			});
+			var startPoint = this.currentLocation;
+			var endPoints = [];
+			if(this.state.mode == 5){
+				endPoints = this.state.listLongPress.concat([this.state.startPoint]);
+			}else{
+				endPoints = this.state.endPoints.concat(this.state.listLongPress);
+			}
+			
+			var socket = app.get('socket');
+			socket.emit('find_way', {startPoint: startPoint, endPoints: endPoints});
+		}
+	},
+	pressLockPoint: function(data)	{
+		var listLongPress = this.state.listLongPress;
+		var position = data.nativeEvent.coordinate;
+		for(var i=0;i<listLongPress.length;i++){
+			if( (position.latitude == listLongPress[i].latitude) && (position.longitude == listLongPress[i].longitude) ){
+				listLongPress.splice(i, 1);
+				this.setState({
+					listLongPress: listLongPress
+				});
+				break;
+			}
+		}
+		var startPoint = this.currentLocation;
+		var endPoints = [];
+		if(this.state.mode == 5){
+			endPoints = this.state.listLongPress.concat([this.state.startPoint]);
+		}else{
+			endPoints = this.state.endPoints.concat(this.state.listLongPress);
+		}
+		
+		var socket = app.get('socket');
+		socket.emit('find_way', {startPoint: startPoint, endPoints: endPoints});
 	}
 });
 
@@ -676,7 +744,6 @@ const styles = StyleSheet.create({
 	drawer: {
 		flex: 1,
 	},
-
 	map: {
 		flex: 1,
 	},
@@ -705,7 +772,8 @@ const styles = StyleSheet.create({
 	},
 	showCurrentName:{
 		color: '#ffffff',
-		fontSize: 17
+		fontSize: 15,
+		textAlign: 'center'
 	},
 	buttonSwitch:{
 		position: 'absolute',
@@ -878,7 +946,6 @@ const styles = StyleSheet.create({
 		paddingRight: 20,
 		flexDirection: "row"
 	},
-
 	footerDanhGia:{
 		height: 80,
 		alignItems: "center",

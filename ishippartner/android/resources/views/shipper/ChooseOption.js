@@ -9,7 +9,8 @@ var {
 	TouchableOpacity,
 	ToastAndroid,
 	TextInput,
-	Modal
+	Modal,
+	Alert
 } = React;
 
 var Icon = require('react-native-vector-icons/Ionicons');
@@ -18,9 +19,12 @@ var DrawerLayout = require('../DrawerLayout');
 var MyToolBar = require('../MyToolBar.js');
 var CheckBox = require('react-native-checkbox');
 var validator = require('validator');
+var app = require('../../../../lib/share/app');
+var consts = require('../../../../lib/consts/consts.js');
 
 var ChooseOptionLayout = React.createClass({
 	getInitialState: function(){
+		this._isMount = false;
 		return {
 			user: this.props.user,
 			titleToolbar: 'ISHIP',
@@ -62,10 +66,10 @@ var ChooseOptionLayout = React.createClass({
 						<View style={styles.typeRadius}>
 							<Text style={{color: "#000000"}}>Bán kính:</Text>
 							<TextInput 
-								style={{height: 40, width: 50}}
+								style={{height: 40, width: 45}}
 								onChangeText={(text) => this.setState({radius: text})}
 								keyboardType="numeric"
-								maxLength = {4} />
+								maxLength = {3} />
 							<Text style={{color: "#000000"}}>(km)</Text>	
 						</View>
 						<View style={{paddingLeft: 20}}>
@@ -118,13 +122,23 @@ var ChooseOptionLayout = React.createClass({
 	openDrawer: function(){
 		this.refs.drawer.openDrawer();
 	},
+	alertError(title, body, buttonText){
+		Alert.alert(
+            title,
+            body,
+            [
+              {text: buttonText},
+            ]
+        );
+	},
 	onGoOnlinePress: function(){
+		var _self = this;
 		var radius = 0;
-		var valid = true;
-		
 		var typeShipValue = 0;
+		var valid = true;
+
 		if(this.state.checkRadius){
-			radius = -1;
+			radius = 1000;
 			if(this.state.errorRadius != ''){
 				this.setState({errorRadius:''});
 			}
@@ -162,14 +176,47 @@ var ChooseOptionLayout = React.createClass({
 		}
 
 		if(valid){
-			var route = {name: 'ShipperMainLayout', user: this.state.user};
-			this.props.navigator.push(route);
+			this._setModalVisible(true);
+
+			navigator.geolocation.getCurrentPosition(
+		      (position) => {
+		        var currentLocation = {
+		        	latitude: position.coords.latitude,
+		        	longitude: position.coords.longitude
+		        }
+		        var socket = app.get('socket');
+
+		        socket.emit('go_online', {location: currentLocation, radius: radius, shipType: typeShipValue});
+		        socket.once('go_online', function(data){
+		        	if(_self._isMount){
+			        	_self._setModalVisible(false);
+			        	if(data.code == consts.CODE.SUCCESS){
+			        		var route = {name: 'ShipperMainLayout', currentLocation: currentLocation};
+			        		_self.props.navigator.push(route);
+			        	}else {
+			        		_self.alertError('Thông báo', 'Đã có lỗi xảy ra vui lòng thử lại', 'OK');
+			        	}
+			        }
+		        });
+		      },
+		      (error) => {
+		      	_self._setModalVisible(false);
+		      	_self.alertError('Thông báo', 'Chưa lấy được thông tin vị trí hiện tại của bạn. Vui lòng thử lại!', 'OK');
+		      },
+		      {enableHighAccuracy: true, timeout: 20000, maximumAge: 5*60*1000}
+		    );
 		}
 	},
 	_setModalVisible: function(value){
 		this.setState({
 			modalVisible: value
 		});
+	},
+	componentDidMount: function(){
+		this._isMount = true;
+	},
+	componentWillUnmount: function(){
+		this._isMount = false;
 	}
 });
 

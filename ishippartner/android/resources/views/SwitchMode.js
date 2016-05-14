@@ -20,7 +20,8 @@ var consts = require('../../../lib/consts/consts.js');
 var SwitchMode = React.createClass({
 	getInitialState: function(){
 		return {
-			user: this.props.user
+			user: this.props.user,
+			modalVisible: false
 		};
 	},
 	render: function(){
@@ -46,16 +47,51 @@ var SwitchMode = React.createClass({
 		          </TouchableOpacity>
 		        </View>
 
+		        <Modal
+					visible={this.state.modalVisible}
+					onRequestClose={()=>this._setModalVisible(false)} >
+
+					<View style={styles.modalContainer} >
+						<View style={styles.modalContent} >
+							<ProgressBar styleAttr="Normal" />
+							<Text>Đang xử lý</Text>
+						</View>
+					</View>
+				</Modal>
+
 			</Image>
 		);
+	},
+	_setModalVisible: function(value){
+		this.setState({
+			modalVisible: value
+		});
 	},
 	onShipperPress: function(){
 		var route = {name: 'ShipperChooseOption', user: this.state.user};
 		this.props.navigator.resetTo(route);
 	},
 	onCallerPress: function(){
-		var route = {name: 'CallerMainLayout', user: this.state.user};
-		this.props.navigator.resetTo(route);
+		var _self = this;
+		this._setModalVisible(true);
+		navigator.geolocation.getCurrentPosition(
+	      	(position) => {
+	      		_self._setModalVisible(false);
+		        var currentLocation = {
+		        	latitude: position.coords.latitude,
+		        	longitude: position.coords.longitude
+		        }
+		        var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation};
+				_self.props.navigator.resetTo(route);
+		    },
+		    (error) => {
+		    	_self._setModalVisible(false);
+		    	var currentLocation = null;
+		      	var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation};
+				_self.props.navigator.resetTo(route);
+		    },
+	      	{enableHighAccuracy: true, timeout: 15000, maximumAge: 5*60*1000}
+	    );
 	}
 });
 
@@ -87,6 +123,18 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	    justifyContent: "center",
 	    backgroundColor: "#1D8668",
+	},
+	modalContainer:{
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center"
+	},
+	modalContent:{
+		alignSelf: "stretch",
+		marginLeft: 50,
+		marginRight: 50,
+		alignItems: "center",
+		justifyContent: "center",
 	}
 });
 

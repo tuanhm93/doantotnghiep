@@ -18,7 +18,7 @@ module.exports = function(socket, io){
 			anotherSocket.emit('cancel_ship');
 		}
 		var status = 2;
-		if(socket.data.state == consts.CODE.DRIVER_SHIPPING){
+		if(socket.data.state == consts.CODE.DRIVER_WAIT){
 			// He's shipper
 			status = 3;
 		}

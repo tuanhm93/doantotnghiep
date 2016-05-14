@@ -19,27 +19,32 @@ function getShippers(location){
 module.exports = function(socket){
 	socket.on('get_shippers', function(data){
 		console.log("get_shippers: ", data);
+		var location = data.location;
+		var shipType = data.shipType;
+
 		Promise
 			.delay(0)
 			.then(function(){
-				return getShippers(data);
+				return getShippers(location);
 			})
 			.then(function(results){
 				console.log(results);
 				var length = results.length;
 				var shippers = [];
 				for(var i=0; i<length; i++){
-					shippers[i] = {
-						userid: results[i].userid,
-						location:{
-							longitude: results[i].location.coordinates[0],
-							latitude: results[i].location.coordinates[1]
-						}
+					if( (results[i].shipType & shipType) == shipType){
+						shippers.push({
+							userid: results[i].userid,
+							location:{
+								longitude: results[i].location.coordinates[0],
+								latitude: results[i].location.coordinates[1]
+							}
+						});
 					}
 				}
 				var data = {};
 				data.shippers = shippers;
-				if(length != 0){
+				if(shippers.length != 0){
 					data.minutes = 10;
 				}
 

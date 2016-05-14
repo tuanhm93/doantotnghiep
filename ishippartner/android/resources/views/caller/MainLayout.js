@@ -37,6 +37,7 @@ var Sound = require('react-native-sound');
 var ChatLayout = require('./Chat.js');
 var MyToolBar = require('../MyToolBar.js');
 var Communications = require('react-native-communications');
+var locationNameUtil = require('../../../../lib/utils/locationname.js');
 
 var MainLayout = React.createClass({
 
@@ -52,6 +53,10 @@ var MainLayout = React.createClass({
 			latitude: 21.0227,
 			longitude: 105.8019,
 		};
+		if(this.props.currentLocation != null){
+			this.current = this.props.currentLocation;
+		}
+
 		this.currentDelta = {
 			latitudeDelta: 0.01549886894352781,
 			longitudeDelta: 0.010693632066249847
@@ -67,7 +72,7 @@ var MainLayout = React.createClass({
 		this.isNewMessageLoaded = false;
 		this.messageBuffer = [];
 		this._messages = [];
-		
+		this.shipType = 4;
 
 		var state = {};
 		state.user = this.props.user;
@@ -78,7 +83,22 @@ var MainLayout = React.createClass({
 			longitudeDelta: this.currentDelta.longitudeDelta,
 		};
 		state.startPoint = null;
-		state.endPoints = [];
+		state.endPoints = [
+		{
+			id: 1,
+			latitude: 20.93,
+			longitude: 105.959
+		},
+		{
+			id: 2,
+			latitude: 20.9193186,
+			longitude: 105.93512
+		},
+		{
+			id: 3,
+			latitude: 20.964580,
+			longitude: 105.933397
+		}];
 		state.locationName = 'Di chuyển tới vị trí cần đón';
 
 		state.content = 'KHÔNG CÓ SHIPPER QUANH ĐÂY';
@@ -101,6 +121,7 @@ var MainLayout = React.createClass({
 		state.mainAnimated = new Animated.ValueXY();
 		state.chatAnimated = new Animated.ValueXY();
 		state.value = this.props.value;
+
 		return state;	
 	},
 
@@ -143,7 +164,8 @@ var MainLayout = React.createClass({
 					initialRegion={this.state.initialRegion}
 					onRegionChangeComplete={this.changeLocation}
 					onRegionChange={this.change}
-					showsUserLocation={true} >
+					showsUserLocation={true}
+					onLongPress = {this.onLongPress} >
 
 					{this.state.shippers.map(shipper => (
 						<MapView.Marker 
@@ -158,10 +180,10 @@ var MainLayout = React.createClass({
 						</MapView.Marker> : null}
 					{this.state.endPoints.map(endPoint => (
 						<MapView.Marker
-							coordinate={this.state.startPoint} >
-							<Icon name="ios-location" size={45} color="#1D8668" />
+							key = {endPoint.id}
+							coordinate={endPoint} >
+							<Icon name="ios-location" size={45} color="#ff0000" />
 						</MapView.Marker> ))}
-
 				</MapView>
 
 				{this.state.mode == 1 ?
@@ -175,11 +197,12 @@ var MainLayout = React.createClass({
 						</View>
 						<Slider
 				          	{...this.props}
-				          	onValueChange={(value) => this.setState({value: value})}
+				          	onValueChange={this.changeShipType}
 				          	style={{alignSelf: 'stretch', paddingLeft: 10, paddingRight: 10}}
 				          	minimumValue= {0}
 				          	maximumValue = {2}
-				          	step = {1} />
+				          	step = {1}
+				          	 />
 					</View> : null}
 
 				{this.state.hasNotify ?
@@ -192,7 +215,7 @@ var MainLayout = React.createClass({
 						<View style={styles.progressBar}>
 							<ProgressBar color="#000000" styleAttr="Horizontal" />
 						</View> : null}
-					{this.state.mode == -1 ? 
+					
 					<View style={styles.currentLocationContainer}>
 						<TouchableOpacity style={styles.searchCurrentLocationContainer}>
 							<View style={styles.iconSearch}>
@@ -210,7 +233,7 @@ var MainLayout = React.createClass({
 									<Icon name="ios-plus-outline" size={20} color="#ffffff" />
 								</TouchableOpacity> : null}
 						</View>
-					</View> : null}
+					</View> 
 					
 
 					{this.state.mode == 1 || this.state.mode == 2 ? 
@@ -335,16 +358,25 @@ var MainLayout = React.createClass({
 			</Animated.View>
 
 			
-		
 		);
 	},
 
 	componentDidMount: function(){
 		console.log("ComponentDidMount: MainLayout");
-
 		var _self = this;
 		var socket = app.get('socket');
 
+		if(this.props.currentLocation == null){
+			ToastAndroid.show('Chưa xác định được thông tin vị trí hiện tại', ToastAndroid.LONG);
+		}
+		locationNameUtil.getLocationName(this.current)
+		.then(function(result){
+			if(result.status == 'OK'){
+				_self.setState({
+					locationName: result.results[0].formatted_address
+				});
+			}
+		});
 		socket.on('get_shippers', function(data){
 			if(data.shippers.length != 0){
 				_self.setState({
@@ -426,6 +458,18 @@ var MainLayout = React.createClass({
 			}
 		});
 
+		socket.on('find_way', function(data){
+			_self.setState({
+				coordinates: data.coordinates
+			});
+		});
+
+		socket.on('location_name', function(data){
+			_self.setState({
+				locationName: data.roadName
+			});
+		});
+
 		this.dingSound = new Sound('ding.wav', Sound.MAIN_BUNDLE, function(err){
 			if(!err){
 				_self.isLoaded = true;
@@ -479,12 +523,15 @@ var MainLayout = React.createClass({
 			this.current.longitude = region.longitude;
 			this.currentDelta.latitudeDelta = region.latitudeDelta;
 			this.currentDelta.longitudeDelta = region.longitudeDelta;
-			socket.emit('get_shippers', this.current);	
+			socket.emit('get_shippers', {location: this.current, shipType: this.shipType});	
+			socket.emit('location_name', this.current);
 		}else if(this.state.mode == 2){
 			this.current.latitude = region.latitude;
 			this.current.longitude = region.longitude;
-			socket.emit('get_shippers', this.current);	
+			socket.emit('get_shippers', {location: this.current, shipType: this.shipType});	
+			socket.emit('location_name', this.current);
 		}
+
 		// Get location name here
 	},
 	switchMode: function(mode){
@@ -599,7 +646,7 @@ var MainLayout = React.createClass({
 		var _self = this;
 		if(this.state.mode == 2){
 			this.switchMode(3);
-			socket.emit('connect_shipper', {startPoint: this.state.startPoint, endPoints: this.state.endPoints});
+			socket.emit('connect_shipper', {startPoint: this.state.startPoint, endPoints: this.state.endPoints, shipType: 4});
 		}else if(this.state.mode == 3){
 			this.switchMode(4);
 			socket.emit('client_reject', function(data){
@@ -649,7 +696,25 @@ var MainLayout = React.createClass({
 		socket.removeAllListeners('cancel_ship');
 		socket.removeAllListeners('get_message');
 		socket.close();
+	},
+	changeShipType: function(value){
+		this.setState({
+			value: value,
+			hasNear: false,
+			shippers: [],
+			content: 'KHÔNG CÓ SHIPPER QUANH ĐÂY'
+		});
+		if(value == 0){
+			this.shipType = 4;
+		}else if(value == 1){
+			this.shipType = 2;
+		}else if(value == 2){
+			this.shipType = 1
+		}
+		var socket = app.get('socket');
+		socket.emit('get_shippers', {location: this.current, shipType: this.shipType});
 	}
+
 });
 
 const styles = StyleSheet.create({
@@ -703,7 +768,8 @@ const styles = StyleSheet.create({
 	},
 	currentLocationName:{
 		color: '#ffffff',
-		fontSize: 17
+		fontSize: 15,
+		textAlign: 'center'
 	},
 	infShipperNearestContainer:{
 		position: "absolute",
