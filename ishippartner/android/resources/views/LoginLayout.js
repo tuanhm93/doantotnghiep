@@ -30,13 +30,18 @@ var app = require('../../../lib/share/app.js');
 var LoginLayout = React.createClass({
 	getInitialState: function(){
 		console.log("LoginLayout: getInitialState");
+
 		return {
 			modalVisible: false,
-			email: 'hoangminhtuan.hust@gmail.com',
-			password: '111111',
+			email: this.props.email,
+			focus: this.props.email != '',
+			password: '',
 			errorEmail: '',
 			errorPassword: '',
 		}
+	},
+	setEmailError: function(value){
+		this._textEmailError.setNativeProps({text: value});
 	},
 	render: function(){
 		console.log("LoginLayout: render");
@@ -72,17 +77,21 @@ var LoginLayout = React.createClass({
 							value={this.state.email}
 							onChangeText={(text) => this.setState({email: text})}
 							placeholder="Email"
+							autoFocus={!this.state.focus}
 							keyboardType="email-address"
-							onSubmitEditing={(event) => { 
-								this.refs.hai.focus(); 
-							}} />
-						<Text style={styles.error}>{this.state.errorEmail}</Text>
+							/>
+						<Text
+							style={styles.error}
+							ref = {component => this._textEmailError = component} >
+							
+						</Text>
 
 						<TextInput
-							ref = "hai"
+							ref = {component => this._passwordInput = component}
 							style={{height: 40, borderColor: 'gray'}}
 							onChangeText={(text) => this.setState({password: text})}
 							value={this.state.password}
+							autoFocus = {this.state.focus}
 							placeholder="Mật khẩu"
 							secureTextEntry = {true} />
 						<Text style={styles.error}>{this.state.errorPassword}</Text>
@@ -94,6 +103,11 @@ var LoginLayout = React.createClass({
 							
 							<Text style={styles.loginText}>ĐĂNG NHẬP</Text>
 						
+						</TouchableOpacity>
+						<TouchableOpacity
+							onPress={this.onForgetPress}
+							style={styles.forgetButton}>
+							<Text style={styles.forgetText} >Quên mật khẩu?</Text>
 						</TouchableOpacity>
 					</View>
 				</ScrollView>
@@ -132,9 +146,10 @@ var LoginLayout = React.createClass({
 		}
 		if(!validator.isEmail(user.email)){
 			valid = false;
-			this.setState({errorEmail: '   Email không hợp lệ'});
+			this.setEmailError('Email không hợp lệ');
+			// this.setState({errorEmail: '   Email không hợp lệ'});
 		}else{
-			this.setState({errorEmail: ''})
+			// this.setState({errorEmail: ''})
 		}
 		if(valid){
 			var _self = this;
@@ -249,6 +264,10 @@ var LoginLayout = React.createClass({
 				_self.alertError('Thông báo', 'Đã có lỗi xảy ra vui lòng thử lại!', 'OK');
 			}
 		})
+	},
+	onForgetPress: function(){
+		var route = {name: 'TypeEmailLayout'};
+		this.props.navigator.push(route);
 	}
 });
 
@@ -325,6 +344,14 @@ const styles = StyleSheet.create({
 		backgroundColor: "#ffffff",
 		borderRadius: 3
 	},
+	forgetButton:{
+		alignItems: "flex-end",
+		marginTop: 5,
+	},
+	forgetText: {
+		fontSize: 15,
+		color: "#2980b9"
+	}
 });
 
 

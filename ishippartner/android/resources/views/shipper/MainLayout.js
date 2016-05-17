@@ -588,6 +588,16 @@ var MainLayout = React.createClass({
 			}
 		});
 	},
+	componentWillUnmount: function(){
+		var socket = app.get('socket');
+		socket.removeAllListeners('find_way');
+		socket.removeAllListeners('send_message');
+		socket.removeAllListeners('get_message');
+		socket.removeAllListeners('cancel_ship');
+		socket.removeAllListeners('establish');
+		socket.removeAllListeners('have_client');
+		socket.removeAllListeners('location_name');	
+	},
 
 	setMessageStatus(uniqueId, status) {
 	    let messages = [];

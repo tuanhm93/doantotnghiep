@@ -120,6 +120,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-image-picker')
     compile project(':rn-geolocation')
     compile project(':react-native-vector-icons')
     compile fileTree(dir: "libs", include: ["*.jar"])
@@ -127,7 +128,8 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-facebook-login')
     compile project(':react-native-maps')
-     compile project(':RNSound')
+    compile project(':RNSound')
+
 
 }
 

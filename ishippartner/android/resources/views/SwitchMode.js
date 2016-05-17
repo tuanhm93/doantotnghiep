@@ -68,7 +68,7 @@ var SwitchMode = React.createClass({
 		});
 	},
 	onShipperPress: function(){
-		var route = {name: 'ShipperChooseOption', user: this.state.user};
+		var route = {name: 'ShipperChooseOption', user: this.state.user, workMode: 'shipper'};
 		this.props.navigator.resetTo(route);
 	},
 	onCallerPress: function(){
@@ -81,13 +81,13 @@ var SwitchMode = React.createClass({
 		        	latitude: position.coords.latitude,
 		        	longitude: position.coords.longitude
 		        }
-		        var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation};
+		        var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation, workMode: 'caller'};
 				_self.props.navigator.resetTo(route);
 		    },
 		    (error) => {
 		    	_self._setModalVisible(false);
 		    	var currentLocation = null;
-		      	var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation};
+		      	var route = {name: 'CallerMainLayout', user: this.state.user, currentLocation: currentLocation, workMode: 'caller'};
 				_self.props.navigator.resetTo(route);
 		    },
 	      	{enableHighAccuracy: true, timeout: 15000, maximumAge: 5*60*1000}

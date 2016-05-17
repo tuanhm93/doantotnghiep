@@ -2,10 +2,11 @@ package com.ishippartner;
 // START
 import com.magus.fblogin.FacebookLoginPackage; // <--- import
 import com.AirMaps.AirPackage; // <--- This!
-import com.zmxv.RNSound.RNSoundPackage;
 
 // END
 import com.facebook.react.ReactActivity;
+import com.zmxv.RNSound.RNSoundPackage;
+import com.imagepicker.ImagePickerPackage;
 import com.tiagojdferreira.RNGeolocationPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactPackage;
@@ -66,11 +67,12 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
+            new RNSoundPackage(),
+            new ImagePickerPackage(),
             new RNGeolocationPackage(),
             new VectorIconsPackage(),
             new FacebookLoginPackage(), // <------ add the package
-            new AirPackage(),
-             new RNSoundPackage()
+            new AirPackage()
         );
     }
 }

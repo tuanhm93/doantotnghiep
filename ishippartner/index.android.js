@@ -25,6 +25,12 @@ var RegisterLayout = require('./android/resources/views/RegisterLayout.js');
 var LoginLayout = require('./android/resources/views/LoginLayout.js');
 var ActiveLayout = require('./android/resources/views/ActiveLayout.js');
 var SwitchMode = require('./android/resources/views/SwitchMode.js');
+var HistoryLayout = require('./android/resources/views/HistoryLayout.js');
+var UserProfileLayout = require('./android/resources/views/UserProfileLayout.js');
+var ChangePasswordLayout = require('./android/resources/views/ChangePasswordLayout.js');
+var TypeEmailLayout = require('./android/resources/views/getInfBack/TypeEmailLayout.js');
+var TypeCodeLayout = require('./android/resources/views/getInfBack/TypeCodeLayout.js');
+var TypeNewPassword = require('./android/resources/views/getInfBack/TypeNewPassword.js');
 //Caller layout
 var CallerMainLayout = require('./android/resources/views/caller/MainLayout.js');
 
@@ -73,16 +79,21 @@ var ishippartner = React.createClass({
       );
     }
     if(name == 'LoginLayout'){
+      var email = route.email;
       return (
-        <LoginLayout navigator={navigator} />
+        <LoginLayout
+          email = {email}
+          navigator={navigator} />
       );
     }
     if(name == 'CallerMainLayout'){
       var user = route.user;
       var currentLocation = route.currentLocation;
+      var workMode = route.workMode;
       return (
         <CallerMainLayout
           user = {user}
+          workMode = {workMode}
           currentLocation = {currentLocation}
           navigator = {navigator}/>
       );
@@ -108,9 +119,12 @@ var ishippartner = React.createClass({
 
     if(name == 'ShipperChooseOption'){
       var user = route.user;
+      var workMode = route.workMode;
+
       return (
         <ShipperChooseOption
           user = {user}
+          workMode = {workMode}
           navigator = {navigator}/>
       );
     }
@@ -122,6 +136,58 @@ var ishippartner = React.createClass({
           user = {user}
           navigator = {navigator}/>
       );
+    }
+
+    if(name == 'HistoryLayout'){
+      var workMode = route.workMode;
+      return (
+        <HistoryLayout
+          workMode = {workMode}
+          navigator = {navigator} />
+      );
+    }
+
+    if(name == 'UserProfileLayout'){
+      var user = route.user;
+      return (
+        <UserProfileLayout
+          user = {user}
+          navigator = {navigator} />
+      );
+    }
+
+    if(name == 'TypeEmailLayout'){
+      return (
+        <TypeEmailLayout
+          navigator = {navigator} />
+      )
+    }
+
+    if(name == 'TypeCodeLayout'){
+      var email = route.email;
+      return (
+        <TypeCodeLayout
+          email = {email}
+          navigator = {navigator} />
+      )
+    }
+
+    if(name == 'TypeNewPassword'){
+      var email = route.email;
+      return (
+        <TypeNewPassword
+          email = {email}
+          navigator = {navigator} />
+      )
+    }
+
+    if(name == 'ChangePasswordLayout'){
+      var email = route.email;
+      return (
+        <ChangePasswordLayout
+          email = {email}
+          navigator = {navigator} />
+      )
     }
   },
 });

@@ -99,6 +99,8 @@ var MainLayout = React.createClass({
 			latitude: 20.964580,
 			longitude: 105.933397
 		}];
+
+		state.workMode = this.props.workMode;
 		state.locationName = 'Di chuyển tới vị trí cần đón';
 
 		state.content = 'KHÔNG CÓ SHIPPER QUANH ĐÂY';
@@ -137,6 +139,7 @@ var MainLayout = React.createClass({
 			<DrawerLayout
 				user = {this.state.user}
 				ref = "drawer"
+				workMode = {this.state.workMode}
 				navigator = {this.props.navigator}
 				style={styles.drawer} >
 			    {this.state.mode == 1 || this.state.mode == 2 || this.state.mode == 3 || this.state.mode == 4?
@@ -458,12 +461,6 @@ var MainLayout = React.createClass({
 			}
 		});
 
-		socket.on('find_way', function(data){
-			_self.setState({
-				coordinates: data.coordinates
-			});
-		});
-
 		socket.on('location_name', function(data){
 			_self.setState({
 				locationName: data.roadName
@@ -695,6 +692,7 @@ var MainLayout = React.createClass({
 		socket.removeAllListeners('establish');
 		socket.removeAllListeners('cancel_ship');
 		socket.removeAllListeners('get_message');
+		socket.removeAllListeners('location_name');
 		socket.close();
 	},
 	changeShipType: function(value){

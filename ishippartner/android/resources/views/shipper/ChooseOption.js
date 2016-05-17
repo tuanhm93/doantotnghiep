@@ -37,7 +37,8 @@ var ChooseOptionLayout = React.createClass({
 			radius: '',
 			modalVisible: false,
 			errorRadius: '',
-			errorTypeShip: ''
+			errorTypeShip: '',
+			workMode: this.props.workMode
 		}
 	},
 
@@ -46,6 +47,7 @@ var ChooseOptionLayout = React.createClass({
 			<DrawerLayout
 				user = {this.state.user}
 				ref = "drawer"
+				workMode = {this.state.workMode}
 				navigator = {this.props.navigator}
 				style={styles.drawer} >
 				<MyToolBar

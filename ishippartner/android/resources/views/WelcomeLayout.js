@@ -163,7 +163,7 @@ var  WelcomeLayout = React.createClass ({
 
   loginTouch(){
     var navigator = this.props.navigator;
-    var route = {name: 'LoginLayout'};
+    var route = {name: 'LoginLayout', email: ''};
     return navigator.push(route);
   },
 

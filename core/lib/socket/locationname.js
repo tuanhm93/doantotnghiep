@@ -20,7 +20,7 @@ module.exports = function(socket){
 		console.log('Get location name: ', JSON.stringify(location));
 		getLocationName(location)
 		.then(function(result){
-			console.log(result);
+			// console.log(result);
 			if(result.status == 'OK'){
 				var roadName = "";
 				var roadInf  = result.results[0].address_components;
@@ -39,6 +39,7 @@ module.exports = function(socket){
 						roadName += roadInf[i].long_name;
 					}
 				}
+				console.log("Road name: ", roadName);
 				socket.emit('location_name', {roadName: roadName});
 			}
 		}).catch(function(err){

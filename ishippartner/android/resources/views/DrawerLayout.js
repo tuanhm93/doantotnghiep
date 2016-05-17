@@ -24,7 +24,8 @@ var DrawerLayout = React.createClass({
 
     return {
       lockMode: 'unlocked',
-      user: user
+      user: user,
+      workMode: this.props.workMode
     }
   },
 
@@ -48,11 +49,14 @@ var DrawerLayout = React.createClass({
           
         });
       
+    }else if(name == 'HistoryLayout'){
+      var route = {name: name, workMode: this.state.workMode};
+      this.props.navigator.push(route);
+    }else if(name == 'UserProfileLayout'){
+      var route = {name: name, user: this.state.user};
+      this.props.navigator.push(route);
     }
-    // this.props.navigator.push({
-    //   title: title,
-    //   name : name,                
-    // }); 
+ 
   },
 
   setLockMode: function(mode){
@@ -112,7 +116,7 @@ var DrawerLayout = React.createClass({
                   {
                     id : 2,
                     title: 'Thông tin cá nhân',
-                    name: 'InfLayout',
+                    name: 'UserProfileLayout',
                     icon: 'briefcase'
                   },
                   {
